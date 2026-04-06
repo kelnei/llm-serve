@@ -11,13 +11,13 @@ fi
 
 STATE=$(docker inspect --format '{{.State.Status}}' "$CONTAINER_NAME")
 
-if [[ "$STATE" != "running" ]]; then
+if [[ "$STATE" != "running" && "$STATE" != "restarting" ]]; then
     echo "Container is not running (state: $STATE). Removing..."
     docker rm "$CONTAINER_NAME"
     exit 0
 fi
 
 echo "==> Stopping $CONTAINER_NAME..."
-docker stop "$CONTAINER_NAME"
-docker rm "$CONTAINER_NAME"
+docker stop "$CONTAINER_NAME" 2>/dev/null || true
+docker rm -f "$CONTAINER_NAME"
 echo "==> Stopped."

@@ -64,6 +64,9 @@ source "$ENV_FILE"
 : "${MAX_NUM_SEQS:=256}"
 : "${ENABLE_PREFIX_CACHING:=true}"
 : "${TOOL_CALL_PARSER:=gemma4}"
+: "${REASONING_PARSER:=gemma4}"
+: "${QUANTIZATION:=}"
+: "${MODEL_PATH:=}"
 
 # Expand ~ in HF_CACHE
 HF_CACHE="${HF_CACHE/#\~/$HOME}"
@@ -85,6 +88,16 @@ if [[ "$DAEMON" == "true" ]]; then
     DOCKER_ARGS+=(-d --restart unless-stopped)
 fi
 
+if [[ -n "$MODEL_PATH" ]]; then
+    MODEL_PATH="${MODEL_PATH/#\~/$HOME}"
+    MOUNT_NAME=$(basename "$MODEL_PATH")
+    DOCKER_ARGS+=(-v "${MODEL_PATH}:/models/${MOUNT_NAME}:ro")
+    # Only override MODEL if the user hasn't already set a container path (starting with /)
+    if [[ "$MODEL" != /* ]]; then
+        MODEL="/models/${MOUNT_NAME}"
+    fi
+fi
+
 # ── build vllm server args ────────────────────────────────────────────────────
 
 SERVER_ARGS=(
@@ -99,8 +112,13 @@ SERVER_ARGS=(
     --enable-chunked-prefill
     --enable-auto-tool-choice
     --tool-call-parser "$TOOL_CALL_PARSER"
+    --reasoning-parser "$REASONING_PARSER"
     --trust-remote-code
 )
+
+if [[ -n "$QUANTIZATION" ]]; then
+    SERVER_ARGS+=(--quantization "$QUANTIZATION")
+fi
 
 if [[ "${ENABLE_PREFIX_CACHING}" == "true" ]]; then
     SERVER_ARGS+=(--enable-prefix-caching)
