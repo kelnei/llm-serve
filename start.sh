@@ -63,7 +63,7 @@ source "$ENV_FILE"
 : "${KV_CACHE_DTYPE:=fp8}"
 : "${MAX_NUM_SEQS:=256}"
 : "${ENABLE_PREFIX_CACHING:=true}"
-: "${TOOL_CALL_PARSER:=gemma3}"
+: "${TOOL_CALL_PARSER:=gemma4}"
 
 # Expand ~ in HF_CACHE
 HF_CACHE="${HF_CACHE/#\~/$HOME}"
