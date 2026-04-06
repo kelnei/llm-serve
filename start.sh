@@ -63,6 +63,7 @@ source "$ENV_FILE"
 : "${KV_CACHE_DTYPE:=fp8}"
 : "${MAX_NUM_SEQS:=256}"
 : "${ENABLE_PREFIX_CACHING:=true}"
+: "${TOOL_CALL_PARSER:=gemma3}"
 
 # Expand ~ in HF_CACHE
 HF_CACHE="${HF_CACHE/#\~/$HOME}"
@@ -96,6 +97,8 @@ SERVER_ARGS=(
     --kv-cache-dtype "$KV_CACHE_DTYPE"
     --max-num-seqs "$MAX_NUM_SEQS"
     --enable-chunked-prefill
+    --enable-auto-tool-choice
+    --tool-call-parser "$TOOL_CALL_PARSER"
     --trust-remote-code
 )
 
